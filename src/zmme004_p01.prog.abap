@@ -221,7 +221,7 @@ CLASS lcl_batch_char IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    DATA(lt_input) = it_values.
+    DATA(lt_input) = split_values( it_values ).
     DELETE lt_input WHERE value IS INITIAL.
     IF lt_input IS INITIAL.
       rs_result-status = 'No value to update'.
@@ -292,6 +292,22 @@ CLASS lcl_batch_char IMPLEMENTATION.
 
     rs_result = VALUE #( ok     = abap_true
                          status = 'Update batch classification completed' ).
+  ENDMETHOD.
+
+  METHOD split_values.
+    LOOP AT it_values INTO DATA(ls_value).
+      IF ls_value-value NS c_separator.
+        APPEND ls_value TO rt_values.
+        CONTINUE.
+      ENDIF.
+
+      SPLIT ls_value-value AT c_separator INTO TABLE DATA(lt_parts).
+
+      LOOP AT lt_parts INTO DATA(lv_part).
+        APPEND VALUE #( charact = ls_value-charact
+                        value   = condense( lv_part ) ) TO rt_values.
+      ENDLOOP.
+    ENDLOOP.
   ENDMETHOD.
 
   METHOD apply_value.

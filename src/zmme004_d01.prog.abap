@@ -79,8 +79,9 @@ CLASS lcl_batch_char DEFINITION FINAL.
       RETURNING VALUE(rs_result) TYPE ty_result.
 
   PRIVATE SECTION.
-    CONSTANTS: c_klart TYPE klah-klart VALUE '023',
-               c_blank TYPE string     VALUE 'BLANK'.
+    CONSTANTS: c_klart     TYPE klah-klart VALUE '023',
+               c_blank     TYPE string     VALUE 'BLANK',
+               c_separator TYPE c          VALUE ';'.
 
     TYPES: BEGIN OF ty_char_def,
              atnam TYPE atnam,
@@ -113,6 +114,10 @@ CLASS lcl_batch_char DEFINITION FINAL.
     METHODS class_chars
       IMPORTING iv_class        TYPE klasse_d
       RETURNING VALUE(rt_chars) TYPE tt_char_def.
+
+    METHODS split_values
+      IMPORTING it_values        TYPE tt_char_value
+      RETURNING VALUE(rt_values) TYPE tt_char_value.
 
     METHODS apply_value
       IMPORTING is_char   TYPE ty_char_def

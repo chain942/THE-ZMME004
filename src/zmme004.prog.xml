@@ -55,7 +55,7 @@
     <item>
      <ID>I</ID>
      <KEY>N02</KEY>
-     <ENTRY>Enter BLANK as the value to clear a characteristic.</ENTRY>
+     <ENTRY>BLANK clears a value. Separate multiple values with ;</ENTRY>
      <LENGTH>79</LENGTH>
     </item>
     <item>
