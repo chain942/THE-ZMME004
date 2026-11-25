@@ -165,7 +165,7 @@ CLASS lcl_batch_char IMPLEMENTATION.
       INNER JOIN cabn ON cabn~atinn = ksml~imerk
       LEFT OUTER JOIN cabnt ON  cabnt~atinn = cabn~atinn
                             AND cabnt~adzhl = cabn~adzhl
-                            AND cabnt~spras = @sy-langu
+                            AND cabnt~spras = @c_text_lang
       WHERE klah~klart = @c_klart
         AND klah~class IN @lt_class
       ORDER BY cabn~atnam
@@ -187,7 +187,7 @@ CLASS lcl_batch_char IMPLEMENTATION.
       INNER JOIN cabnt ON  cabnt~atinn = cabn~atinn
                        AND cabnt~adzhl = cabn~adzhl
       WHERE cabn~atnam  IN @lt_atnam
-        AND cabnt~spras =  @sy-langu
+        AND cabnt~spras =  @c_text_lang
       INTO TABLE @rt_text.
   ENDMETHOD.
 

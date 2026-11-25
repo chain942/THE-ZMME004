@@ -81,7 +81,8 @@ CLASS lcl_batch_char DEFINITION FINAL.
   PRIVATE SECTION.
     CONSTANTS: c_klart     TYPE klah-klart VALUE '023',
                c_blank     TYPE string     VALUE 'BLANK',
-               c_separator TYPE c          VALUE ';'.
+               c_separator TYPE c          VALUE ';',
+               c_text_lang TYPE spras      VALUE 'E'.
 
     TYPES: BEGIN OF ty_char_def,
              atnam TYPE atnam,
