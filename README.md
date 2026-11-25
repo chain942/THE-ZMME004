@@ -115,13 +115,14 @@ Text symbols: `B01` Input Method, `B02` Option Update, `B03` File Path, `C01` Ch
 8. ตัด logic ที่ IMPORT จาก memory ID `ZFG_MAT_SPEC` / `ZUD_MAT_SPEC` / `ZNEWMAT_IND` (ใช้เฉพาะตอนถูกเรียกจาก ZQMI003)
 9. characteristic ที่ไม่อยู่ใน class → error ทั้งแถวพร้อมข้อความ (ของเดิมปล่อยให้ BAPI ตอบ)
 10. แถวที่ไม่มีค่าให้อัปเดตขึ้นข้อความ `No value to update` (ของเดิมไฟแดงแต่ข้อความว่าง)
-11. Description ของ characteristic บน ALV ใช้ภาษา logon (`sy-langu`) ของเดิมใช้ `E`
 
 ### Quirk ที่คงไว้ตามต้นฉบับ
 
 - เช็คสิทธิ์ plant ด้วย `M_MATE_WRK` `ACTVT = 03` (display) ทั้งที่โปรแกรมแก้ข้อมูล ถ้า plant ใดไม่ผ่านจะหยุดทั้งไฟล์
 - ไม่เช็คว่า batch มีอยู่จริงในโหมด Excel ปล่อยให้ BAPI ตอบ error กลับมา
 - object key ใช้ `MCH1` (batch ระดับ material/client) = material 40 ตัว + batch
+- Description ของ characteristic (F4 และหัวคอลัมน์ ALV) อ่านจาก `CABNT` ภาษา `E` เสมอ
+  บนระบบนี้มี text แค่ภาษา `E` (บางตัวเก็บข้อความไทยไว้ใต้ `E`)
 
 ## Config — ZTCA001
 
@@ -130,9 +131,10 @@ Text symbols: `B01` Input Method, `B02` Option Update, `B03` File Path, `C01` Ch
 
 ## สิ่งที่ต้องทำฝั่ง SAP
 
-- [ ] รัน `_ref/yzmme004_testdata.abap` (สร้างเป็น `YZMME004_TESTDATA` ใน `$TMP`, SELECT อย่างเดียว)
-      ไฟล์ออกที่ `D:\for_query\zmme004.json` เพื่อยืนยัน
-      batch level (`TCUCH`), batch class / characteristic ที่ใช้จริง และ INOB ของ MARA/MCH1
+- [x] รัน `_ref/yzmme004_testdata.abap` (`YZMME004_TESTDATA` ใน `$TMP`) ผล 25.11.2026 client 110:
+      `TCUCH-KZDCH = 1` (batch ระดับ material → `MCH1` ถูก), batch class `ZBATCH_Z10`…`ZBATCH_Z90`
+      ผูกกับ material ผ่าน INOB(MARA)/KSSK ได้, characteristic มีเฉพาะใน `ZBATCH_Z10` (24 ตัว
+      CHAR/NUM single value), ไม่มี FM `ZCA_*` และ auth object `ZMME03_*` บนระบบ, ยังไม่มี batch ใน MCHA
 - [ ] Pull ผ่าน abapGit แล้ว syntax check ZMME004 (abaplint ผ่านแล้ว แต่ไม่ได้ตรวจ signature ของ
       `cl_fdt_xl_spreadsheet`, `cl_salv_*`, `cl_gui_frontend_services` เพราะไม่มี stub)
 - [ ] เช็ค text symbols / selection texts ใน SE38 (ส่งมากับ XML แล้ว)
