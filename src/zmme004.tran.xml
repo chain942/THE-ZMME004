@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_TRAN" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <TSTC>
+    <TCODE>ZMME004</TCODE>
+    <PGMNA>ZMME004</PGMNA>
+    <CINFO>gA==</CINFO>
+   </TSTC>
+   <TSTCC>
+    <TCODE>ZMME004</TCODE>
+    <S_WEBGUI>1</S_WEBGUI>
+    <S_WIN32>X</S_WIN32>
+    <S_PLATIN>X</S_PLATIN>
+   </TSTCC>
+   <TSTCT>
+    <SPRSL>E</SPRSL>
+    <TCODE>ZMME004</TCODE>
+    <TTEXT>Update Batch Characteristic</TTEXT>
+   </TSTCT>
+   <I18N_TPOOL>
+    <TSTCT>
+     <SPRSL>2</SPRSL>
+     <TTEXT>Update Batch Characteristic</TTEXT>
+    </TSTCT>
+   </I18N_TPOOL>
+   <HEAD>
+    <NAME>ZMME004</NAME>
+    <TYPE>TR</TYPE>
+    <DISPLAY_NAME>ZMME004</DISPLAY_NAME>
+    <STEXT>Report Transaction</STEXT>
+    <CTYPE>R</CTYPE>
+   </HEAD>
+   <USOBX>
+    <USOBX>
+     <NAME>ZMME004</NAME>
+     <TYPE>TR</TYPE>
+     <OBJECT>S_TCODE</OBJECT>
+     <OKFLAG>X</OKFLAG>
+    </USOBX>
+   </USOBX>
+  </asx:values>
+ </asx:abap>
+</abapGit>
