@@ -32,7 +32,7 @@ flowchart TD
 ```
 
 กติกาหลัก: อัปเดตเฉพาะ characteristic ที่มีค่า ช่องว่างไม่แตะค่าเดิม ถ้าต้องการล้างค่าให้ใส่คำว่า `BLANK`
-(ตัวพิมพ์ใดก็ได้) characteristic ที่ไม่อยู่ใน batch class ของ material ทำให้ batch นั้น error ทั้งแถว
+(ตัวพิมพ์ใดก็ได้) ใส่หลายค่าในช่องเดียวได้โดยคั่นด้วย `;` เช่น `A;B` characteristic ที่ไม่อยู่ใน batch class ของ material ทำให้ batch นั้น error ทั้งแถว
 ไม่มีการอัปเดตบางส่วน ค่าแบบ single value จะทับของเดิม ส่วน multiple value จะเพิ่มต่อจากค่าที่มีอยู่
 แต่ละ batch commit แยกกัน แถวที่ error จะไม่กระทบแถวอื่น
 
@@ -50,7 +50,7 @@ flowchart TD
 | `P_SHEET` | Listbox | Worksheet | ว่าง = sheet แรก |
 
 Text symbols: `B01` Input Method, `B02` Option Update, `B03` File Path, `C01` Characteristic,
-`M01` Direct Screen Entry, `M02` Excel Upload, `N01`/`N02` หมายเหตุใต้ block
+`M01` Direct Screen Entry, `M02` Excel Upload, `N01`/`N02` หมายเหตุใต้ block (ช่วง batch, `BLANK`, ตัวคั่น `;`)
 
 ### Excel layout
 
@@ -61,6 +61,7 @@ Text symbols: `B01` Input Method, `B02` Option Update, `B03` File Path, `C01` Ch
 - 3 คอลัมน์แรกอ่านตามตำแหน่ง ไม่สนชื่อหัวคอลัมน์ ตั้งแต่ D เป็นต้นไปหัวคอลัมน์ต้องเป็นชื่อ characteristic
 - คอลัมน์ที่หัวว่างจะถูกข้าม แถวที่ A–C ว่างทั้งหมดก็ถูกข้าม
 - Material ผ่าน `MATN1` ส่วน Plant กับ Batch ผ่าน `ALPHA` (cell ตัวเลข `996211` จะกลายเป็น `0000996211`)
+- หลายค่าในช่องเดียวคั่นด้วย `;` (แยกเป็นค่าละแถวแล้ว condense ทีละค่า)
 - characteristic ชนิด DATE รับได้ทั้ง `YYYYMMDD`, `DD.MM.YYYY` และ cell วันที่ของ Excel (serial)
 
 ## โครงไฟล์
@@ -87,6 +88,8 @@ Text symbols: `B01` Input Method, `B02` Option Update, `B03` File Path, `C01` Ch
 | `convert_exit` | `lcl_app=>to_matnr`, `alpha_in` | แปลง key |
 | `update_batch_char` | `lcl_app->update_batches` | วนทีละ batch |
 | FM `ZCA_UPDATE_BATCH_CHAR` | `lcl_batch_char->update`, `apply_value`, `set_char_value` | GETDETAIL → ใส่ค่า → CHANGE |
+| `split_mult_val` (LZCA01F01) | `lcl_batch_char->split_values` | แยกค่าที่คั่นด้วย `;` |
+| `delete_batch_char` (LZCA01F01) | `lcl_batch_char->apply_value` (ค่า `BLANK`) | ล้างค่า characteristic |
 | FM `ZCA_GET_OBJ_CLASS` | `lcl_batch_char->batch_class` | หา batch class ของ material |
 | `show_output_pld`, `set_fcat_output`, `show_alv_output` | `lcl_app->show_result`, `set_column_texts` | SALV |
 | AUTHORITY-CHECK `M_MATE_WRK` ใน `upload_file` | `lcl_app->check_plant_authority` | เช็คสิทธิ์ plant |
@@ -106,12 +109,13 @@ Text symbols: `B01` Input Method, `B02` Option Update, `B03` File Path, `C01` Ch
 5. ตัดเช็คสิทธิ์ `ZMME03_SD` / `ZMME03_MM` / `ZMME03_QM` (เช็คตาม prefix ชื่อ characteristic)
    เพราะเป็น object ของ GJS ถ้าต้องการให้สร้าง object ใหม่แล้วเพิ่มกลับ
 6. หา batch class ไม่ตัด clint `765` / `766` และ class `ZMM_INFO%` แบบของเดิม เพราะเป็นค่าเฉพาะระบบ GJS
-7. ค่า `BLANK` ล้างในการเรียก `BAPI_OBJCL_CHANGE` ครั้งเดียวกัน ไม่ต้องเรียกรอบสองและไม่ต้อง `WAIT UP TO 10 SECONDS`
+7. ค่า `BLANK` ล้างในการเรียก `BAPI_OBJCL_CHANGE` ครั้งเดียวกัน แทน `CACL_OBJECT_VALIDATION_MAINT` +
+   `CLAP_DDB_SAVE_CLASSIFICATION` รอบสอง และไม่ต้อง `WAIT UP TO 10 SECONDS` ผลต่าง: ของเดิมลบเฉพาะค่าแรก
+   ของ characteristic แบบ multiple value ส่วนตัวใหม่ลบทุกค่าของ characteristic นั้น
 8. ตัด logic ที่ IMPORT จาก memory ID `ZFG_MAT_SPEC` / `ZUD_MAT_SPEC` / `ZNEWMAT_IND` (ใช้เฉพาะตอนถูกเรียกจาก ZQMI003)
 9. characteristic ที่ไม่อยู่ใน class → error ทั้งแถวพร้อมข้อความ (ของเดิมปล่อยให้ BAPI ตอบ)
 10. แถวที่ไม่มีค่าให้อัปเดตขึ้นข้อความ `No value to update` (ของเดิมไฟแดงแต่ข้อความว่าง)
 11. Description ของ characteristic บน ALV ใช้ภาษา logon (`sy-langu`) ของเดิมใช้ `E`
-12. ยังไม่รองรับการแยกหลายค่าในช่องเดียว (`split_mult_val` ของเดิม) เพราะไม่ได้รับ source ของ FORM นี้
 
 ### Quirk ที่คงไว้ตามต้นฉบับ
 
